@@ -63,12 +63,12 @@ def plotting():
         return
     label.configure(text=" ")
 
-    cc = 3e10  # Скорость света (см/с)
+    cc = 3e10  # ñêîðîñòü ñâåòà
     ff = get(frequincy)
-    f = ff * 1e9  # Частота (ГГц)
+    f = ff * 1e9  # ÷àñòîòó ïåðåâîäèì â Ãö
     w = 2 * pi * f
-    lyam = cc / f  # длина волны
-    hh = w / cc  # волновое число
+    lyam = cc / f  # ðàçìåð âîëíîâîäà ïî îñè z    
+    hh = w / cc  # âîëíîâîå ÷èñëî
     n = get(table_n)
     m = get(table_m)
     a = get(a_x_size_entry)
@@ -76,12 +76,13 @@ def plotting():
     tt = time
     t = tt / 1e12
     c = lyam
-    h = 0.01  # шаг
+    h = 0.01  # øàã ñåòêè
     k = get(size_lines_entry)
     kappa = sqrt(((pi * n / a) ** 2) + ((pi * m / b) ** 2))
     kappaX = pi * n / a
     kappaY = pi * m / b
-    f_kr = (cc * kappa) / (2 * pi)  # критическая частота
+    f_kr = (cc * kappa) / (2 * pi)  # êðèòè÷åñêàÿ ÷àñòîòà
+    lyam_kr = cc / f_kr
     # îïðåäåëèì ñðåç
     C1 = 0
     C2 = 0
@@ -110,7 +111,7 @@ def plotting():
     # E
     def TE_E_XY(x, y):
         return abs(cos(kappaY * y)) * abs(cos(kappaX * x)) * cos(w * t)
-
+    #TE10
     def TE10_H_XY(x, y):
         return abs(sin(kappaX * x)) * exp(hh * tan(w * t) * y)
 
@@ -122,7 +123,10 @@ def plotting():
 
     def TE10_E_XY(x, y):
         return (w / (kappaX * cc)) * abs(sin(kappaX * x)) * cos(w * t)
-
+    
+    def TE10_E_YZ(y, z):
+        return abs(sin( w * t - hh*y))
+    #TE01 
     def TE01_H_XY(x, y):
         return abs(sin(kappaY * y)) * exp(hh * tan(w * t) * x)
 
@@ -185,7 +189,7 @@ def plotting():
                 XY.contour(x1, y1, TE_E_XY(x1, y1), linspace(-1, 1, k), colors='r')
             elif n != 0 and m == 0:
                 XY.contour(x1, y1, TE10_E_XY(x1, y1), linspace(-1, 1, k), colors='r')
-                YZ.contour(x1, y1, TE10_E_XY(x1, y1), linspace(-1, 1, k), colors='r')
+                #YZ.contour(x1, y1, TE10_E_XY(x1, y1), linspace(-1, 1, k), colors='r')
             elif n == 0 and m != 0:
                 XY.contour(x1, y1, TE01_E_XY(x1, y1), linspace(-1, 1, k), colors='r')
             XY.set_xlabel('x')
@@ -195,6 +199,7 @@ def plotting():
                 YZ.contour(z2, y2, TE_H_YZ(y2, z2), linspace(-1, 1, k), colors='b')
             elif n != 0 and m == 0:
                 YZ.contour(x1, y1, TE10_H_XY(y1, 0), linspace(-1, 1, k), colors='b')
+                YZ.contour(x1, y1, TE10_E_YZ(x1, y1), linspace(-1, 1, k), colors='r')
             elif n == 0 and m != 0:
                 YZ.contour(z2, y2, TE01_H_YZ(y2, z2), linspace(-1, 1, k), colors='b')
             YZ.set_xlabel('z')
