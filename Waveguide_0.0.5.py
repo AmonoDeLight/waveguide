@@ -63,12 +63,12 @@ def plotting():
         return
     label.configure(text=" ")
 
-    cc = 3e10  # ñêîðîñòü ñâåòà
+    cc = 3e10  # Скорость света (см/с)
     ff = get(frequincy)
-    f = ff * 1e9  # ÷àñòîòó ïåðåâîäèì â Ãö
+    f = ff * 1e9  # Частота (ГГц)
     w = 2 * pi * f
-    lyam = cc / f  # ðàçìåð âîëíîâîäà ïî îñè z
-    hh = w / cc  # âîëíîâîå ÷èñëî
+    lyam = cc / f  # длина волны
+    hh = w / cc  # волновое число
     n = get(table_n)
     m = get(table_m)
     a = get(a_x_size_entry)
@@ -76,12 +76,12 @@ def plotting():
     tt = time
     t = tt / 1e12
     c = lyam
-    h = 0.01  # øàã ñåòêè
+    h = 0.01  # шаг
     k = get(size_lines_entry)
     kappa = sqrt(((pi * n / a) ** 2) + ((pi * m / b) ** 2))
     kappaX = pi * n / a
     kappaY = pi * m / b
-    f_kr = (cc * kappa) / (2 * pi)  # êðèòè÷åñêàÿ ÷àñòîòà
+    f_kr = (cc * kappa) / (2 * pi)  # критическая частота
     # îïðåäåëèì ñðåç
     C1 = 0
     C2 = 0
