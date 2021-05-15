@@ -83,6 +83,8 @@ def plotting():
     kappaY = pi * m / b
     f_kr = (cc * kappa) / (2 * pi)  # êðèòè÷åñêàÿ ÷àñòîòà
     lyam_kr = cc / f_kr
+    def V_gr():
+        return cc*sqrt(1 - pow(lyam/lyam_kr,2))
     # îïðåäåëèì ñðåç
     C1 = 0
     C2 = 0
@@ -111,7 +113,9 @@ def plotting():
     # E
     def TE_E_XY(x, y):
         return abs(cos(kappaY * y)) * abs(cos(kappaX * x)) * cos(w * t)
+    
     #TE10
+ #==========================================================================================================   
     def TE10_H_XY(x, y):
         return abs(sin(kappaX * x)) * exp(hh * tan(w * t) * y)
 
@@ -119,13 +123,17 @@ def plotting():
         return abs(sin(kappaX * x)) * cos(w * t - hh * z)
 
     def TE10_H_YZ(y, z):
-        return exp(kappaX * (cos(kappaX * C1) / sin(kappaX * C1)) * z) * sin(w * t - hh * y)
+        return exp(kappaX * (cos(kappaX * C1) / sin(kappaX * C1)) * y) * sin(w * t - hh * z)
 
     def TE10_E_XY(x, y):
-        return (w / (kappaX * cc)) * abs(sin(kappaX * x)) * cos(w * t)
+        return (w / (kappaX * cc)) * abs(sin(kappaX * x) * cos(kappaX * x) * sin(kappaX*x))
+
     
     def TE10_E_YZ(y, z):
-        return abs(sin( w * t - hh*y))
+        return  cos(w * t - hh * y) #* (w / (kappaX * cc)) #* sin(kappaX * y)  #0.1 - cos(w * t - hh * y + 0.2) * (w / (kappaX * cc))
+ #==========================================================================================================   
+    
+    
     #TE01 
     def TE01_H_XY(x, y):
         return abs(sin(kappaY * y)) * exp(hh * tan(w * t) * x)
