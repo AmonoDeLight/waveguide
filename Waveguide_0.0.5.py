@@ -9,7 +9,14 @@ from sys import exit
 import os
 from tkinter import *
 
-LARGE_FONT = ("TIMES NEW ROMAN", 14, "bold", "italic")
+LARGE_FONT = ("Archangelsk Regular", 14, "bold", "italic")
+
+
+def onScale(tim):
+    global time
+    time = int(float(tim))
+    time_label.configure(text=time)
+    plotting()
 
 
 def testVal(inStr, acttyp):
@@ -21,21 +28,6 @@ def testVal(inStr, acttyp):
 
 def EXIT():
     os.abort()
-
-
-def time_minus():
-    global time
-    if time > 0:
-        time -= 1
-        time_label.configure(text=time)
-        plotting()
-
-
-def time_plus():
-    global time
-    time += 1
-    time_label.configure(text=time)
-    plotting()
 
 
 def get(entry):
@@ -57,18 +49,18 @@ def plotting():
     if (len(frequincy.get()) == 0) or (len(a_x_size_entry.get()) == 0) or (len(b_x_size_entry.get()) == 0) or (
             len(table_n.get()) == 0) or (len(table_m.get()) == 0):
         clf()
-        label.configure(text="Заполните поля!", bg="gainsboro")
+        label.configure(text="Заполните поля!", bg="#1A1A1D", fg="#bbbbbf")
         label.grid(row=0, column=4, columnspan=3, padx=10, pady=15, sticky=S + N)
         gcf().canvas.draw()
         return
     label.configure(text=" ")
 
-    cc = 3e10  # Скорость света (см/с)
+    cc = 3e10  # ñêîðîñòü ñâåòà
     ff = get(frequincy)
-    f = ff * 1e9  # Частота (ГГц)
+    f = ff * 1e9  # ÷àñòîòó ïåðåâîäèì â Ãö
     w = 2 * pi * f
-    lyam = cc / f  # длина волны
-    hh = w / cc  # волновое число
+    lyam = cc / f  # ðàçìåð âîëíîâîäà ïî îñè z
+    hh = w / cc  # âîëíîâîå ÷èñëî
     n = get(table_n)
     m = get(table_m)
     a = get(a_x_size_entry)
@@ -76,12 +68,17 @@ def plotting():
     tt = time
     t = tt / 1e12
     c = lyam
-    h = 0.01  # шаг
+    h = 0.01  # øàã ñåòêè
     k = get(size_lines_entry)
     kappa = sqrt(((pi * n / a) ** 2) + ((pi * m / b) ** 2))
     kappaX = pi * n / a
     kappaY = pi * m / b
-    f_kr = (cc * kappa) / (2 * pi)  # критическая частота
+    f_kr = (cc * kappa) / (2 * pi)  # êðèòè÷åñêàÿ ÷àñòîòà
+    lyam_kr = cc / f_kr
+
+    def V_gr():
+        return cc * sqrt(1 - pow(lyam / lyam_kr, 2))
+
     # îïðåäåëèì ñðåç
     C1 = 0
     C2 = 0
@@ -111,6 +108,8 @@ def plotting():
     def TE_E_XY(x, y):
         return abs(cos(kappaY * y)) * abs(cos(kappaX * x)) * cos(w * t)
 
+    # TE10
+    # ==========================================================================================================
     def TE10_H_XY(x, y):
         return abs(sin(kappaX * x)) * exp(hh * tan(w * t) * y)
 
@@ -118,11 +117,18 @@ def plotting():
         return abs(sin(kappaX * x)) * cos(w * t - hh * z)
 
     def TE10_H_YZ(y, z):
-        return exp(kappaX * (cos(kappaX * C1) / sin(kappaX * C1)) * z) * sin(w * t - hh * y)
+        return exp(kappaX * (cos(kappaX * C1) / sin(kappaX * C1)) * y) * sin(w * t - hh * z)
 
     def TE10_E_XY(x, y):
-        return (w / (kappaX * cc)) * abs(sin(kappaX * x)) * cos(w * t)
+        return (w / (kappaX * cc)) * abs(sin(kappaX * x) * cos(kappaX * x) * sin(kappaX * x))
 
+    def TE10_E_YZ(y, z):
+        return cos(
+            w * t - hh * y)  # * (w / (kappaX * cc)) #* sin(kappaX * y)  #0.1 - cos(w * t - hh * y + 0.2) * (w / (kappaX * cc))
+
+    # ==========================================================================================================
+
+    # TE01
     def TE01_H_XY(x, y):
         return abs(sin(kappaY * y)) * exp(hh * tan(w * t) * x)
 
@@ -133,9 +139,13 @@ def plotting():
         return abs(sin(kappaY * y)) * cos(w * t - hh * z)
 
     def TE01_E_XY(x, y):
-        return (w / (kappaY * cc)) * abs(sin(kappaY * y)) * sin(w * t)
+        return (w / (kappaY * cc)) * abs(sin(kappaY * y) * cos(kappaY * y) * sin(kappaY * y))
 
-    # TM H
+    def TE01_E_XZ(x, z):
+        return cos(w * t - hh * x)
+
+        # TM H
+
     def TM_H_XY(x, y):
         return abs(sin(kappaX * x)) * abs(sin(kappaY * y)) * cos(w * t + pi / 2)
 
@@ -157,19 +167,18 @@ def plotting():
         return a1grid, a2grid
 
     if f > f_kr:
-        fig = figure(figsize=(7, 5), facecolor="gainsboro")
+        fig = figure(figsize=(9, 6), facecolor="#4e4e52", edgecolor="white")
+        fig.set_figheight(8)
+        fig.set_figwidth(6)
         XY = fig.add_subplot(3, 1, 1)
         YZ = fig.add_subplot(3, 1, 2)
         XZ = fig.add_subplot(3, 1, 3)
-
-        fig.set_figwidth(5)
-        fig.set_figheight(5)
 
         x1, y1 = makeData(a, b)
         y2, z2 = makeData(b, c)
         x3, z3 = makeData(a, c)
         canvas = FigureCanvasTkAgg(fig, master=window)
-        canvas.get_tk_widget().grid(row=0, column=4, rowspan=17, padx=10, pady=5, sticky=S + N)
+        canvas.get_tk_widget().place(relx=.7, rely=.52, anchor="c")
 
         if combobox.get() == "TE":  # ïðîâåðÿåì òèï âîëí è äàëüøå ñ÷èòûâàåì ìîäó
             if n != 0 and m != 0:
@@ -177,15 +186,15 @@ def plotting():
             elif n != 0 and m == 0:
                 XY.contour(x1, y1, TE10_H_XY(y1, 0), linspace(-1, 1, k), colors='b')
             elif n == 0 and m != 0:
-                XY.contour(x1, y1, TE01_H_XY(x1, y1), linspace(-1, 1, k), colors='b')
+                XY.contour(x1, y1, TE01_H_XY(0, x1), linspace(-1, 1, k), colors='b')
             XY.set_xlabel('x')
             XY.set_ylabel('y')
-            
+
             if n != 0 and m != 0:
                 XY.contour(x1, y1, TE_E_XY(x1, y1), linspace(-1, 1, k), colors='r')
             elif n != 0 and m == 0:
                 XY.contour(x1, y1, TE10_E_XY(x1, y1), linspace(-1, 1, k), colors='r')
-                YZ.contour(x1, y1, TE10_E_XY(x1, y1), linspace(-1, 1, k), colors='r')
+                # YZ.contour(x1, y1, TE10_E_XY(x1, y1), linspace(-1, 1, k), colors='r')
             elif n == 0 and m != 0:
                 XY.contour(x1, y1, TE01_E_XY(x1, y1), linspace(-1, 1, k), colors='r')
             XY.set_xlabel('x')
@@ -195,6 +204,7 @@ def plotting():
                 YZ.contour(z2, y2, TE_H_YZ(y2, z2), linspace(-1, 1, k), colors='b')
             elif n != 0 and m == 0:
                 YZ.contour(x1, y1, TE10_H_XY(y1, 0), linspace(-1, 1, k), colors='b')
+                YZ.contour(x1, y1, TE10_E_YZ(x1, y1), linspace(-1, 1, k), colors='r')
             elif n == 0 and m != 0:
                 YZ.contour(z2, y2, TE01_H_YZ(y2, z2), linspace(-1, 1, k), colors='b')
             YZ.set_xlabel('z')
@@ -205,7 +215,8 @@ def plotting():
             elif n != 0 and m == 0:
                 XZ.contour(z3, x3, TE10_H_XZ(x3, z3), linspace(-1, 1, k), colors='b')
             elif n == 0 and m != 0:
-                XZ.contour(z3, x3, TE01_H_XZ(x3, z3), linspace(-1, 1, k), colors='b')
+                XZ.contour(x1, y1, TE01_H_XY(0, x1), linspace(-1, 1, k), colors='b')
+                XZ.contour(x1, y1, TE01_E_XZ(y1, 0), linspace(-1, 1, k), colors='r')
             XZ.set_xlabel('z')
             XZ.set_ylabel('x')
 
@@ -231,7 +242,7 @@ def plotting():
                 XZ.set_xlabel('z')
                 XZ.set_ylabel('x')
             else:
-                label = Label(window, text="E R R O R !", font=LARGE_FONT, bg="gainsboro")
+                label = Label(window, text="E R R O R !", font=LARGE_FONT, bg="#1A1A1D", fg="#bbbbbf")
                 label.grid(row=3, column=4, columnspan=3, padx=30, sticky=SW)
                 gcf().canvas.draw()
 
@@ -239,99 +250,118 @@ def plotting():
     # è òàêæå âûâåäåì ñàìó êðèòè÷åñêóþ ÷àñòîòó
 
     else:
-        label = Label(window, text="Частота ниже критической!", font=LARGE_FONT, bg="gainsboro")
-        label.grid(row=5, column=4, columnspan=2, padx=30, sticky=SW)
+        label = Label(window, text="Частота ниже критической!", font=LARGE_FONT, bg="#1A1A1D", fg="#bbbbbf")
+        label.grid(row=15, column=0, sticky=W, padx=30)
     subplots_adjust(wspace=0.5, hspace=0.5)
     gcf().canvas.draw()
-    w_label = Label(window, text="Критическая частота(ГГц): ", font=LARGE_FONT, bg="gainsboro")
-    w_label.grid(row=11, column=0, columnspan=4, padx=30, sticky=SW)
-    wk_label = Label(window, text=f_kr / 1e9, bg="gainsboro", font=LARGE_FONT)
-    wk_label.grid(row=11, column=1, columnspan=7, padx=90, sticky=SW)
+    w_label = Label(window, text="Критическая частота(ГГц): ", font=LARGE_FONT, bg="#1A1A1D", fg="#bbbbbf")
+    w_label.grid(row=14, column=0, sticky=W, padx=30)
+    wk_label = Label(window, text=f_kr / 1e9, bg="#1A1A1D", fg="#bbbbbf", font=LARGE_FONT)
+    wk_label.place(relx=.28, rely=.546, anchor="c")
 
 
 window = Tk()
 window.title()
 window.protocol("WM_DELETE", EXIT)
+window.attributes('-fullscreen', True)
 window.attributes("-alpha", 1)
 window.resizable(width=True, height=True)
-window['bg'] = 'gainsboro'
-window.title("Model Volnovoda")
+window['bg'] = '#1A1A1D'
+window.title("Volnovodka")
 w = 950
 h = 700
 sw = window.winfo_screenwidth()
 sh = window.winfo_screenheight()
-window.geometry('%dx%d+%d+%d' % (w, h, (sw - w) / 2, (sh - h) / 2))
 
-label_n = Label(window, text="Выберите тип волны:", font=LARGE_FONT, bg="gainsboro", fg="black")
-label_n.grid(row=0, column=0, columnspan=2, padx=30, pady=10, sticky=SW)
+
+label_n = Label(window, text="Выберите тип волны:", font=LARGE_FONT, bg="#1A1A1D", fg="#bbbbbf")
+label_n.grid(row=0, column=0, padx=30, sticky=W)
 
 style = Style()
-style.configure("BW.TLabel", font=LARGE_FONT, foreground="black", background="gold")
-combobox = Combobox(value=["TE", "TM"], height=2, width=3, state="readonly", style="BW.TLabel")
+style.configure("BW.TLabel", font=LARGE_FONT, foreground="#bbbbbf", background="#4E4E50")
+combobox = Combobox(value=["TE", "TM"], height=2, width=3, state="readonly", font=LARGE_FONT, style="BW.TLabel")
 combobox.set("TE")
-combobox.grid(row=1, column=2, columnspan=2, sticky=SW)
-window.option_add("*TCombobox*Listbox*Background", 'gold')
-window.option_add("*TCombobox*Listbox*Foreground", 'green')
+combobox.grid(row=0, column=3)
+window.option_add("*TCombobox*Listbox*Background", '#4E4E50')
+window.option_add("*TCombobox*Listbox*Foreground", '#1A1A1D')
 
-moda_label = Label(window, text="Выберите моду:", font=LARGE_FONT, bg="gainsboro")
-moda_label.grid(row=1, column=0, columnspan=4, padx=30, sticky=SW)
+label_kostya = Label(window, text="Люблю кортошку", font=LARGE_FONT, bg="#1A1A1D", fg="#1A1A1D")
+label_kostya.grid(row=1, column=0)
 
-label_m = Label(window, text="m: ", font=LARGE_FONT, bg="gainsboro")
-label_m.grid(row=3, column=2, padx=10, sticky=W)
-table_m = Entry(window, width=5, bg="gold", selectbackground='black', validate="key")
+moda_label = Label(window, text="Выберите моду:", font=LARGE_FONT, bg="#1A1A1D", fg="#bbbbbf")
+moda_label.grid(row=2, column=0, columnspan=4, padx=30, sticky=SW)
+
+label_m = Label(window, text="m: ", font=LARGE_FONT, bg="#1A1A1D", fg="#bbbbbf")
+label_m.grid(row=3, column=2)
+table_m = Entry(window, width=5, bg="#4E4E50", selectbackground='black', font=LARGE_FONT, fg="#bbbbbf", validate="key")
 table_m['validatecommand'] = (table_m.register(testVal), '%P', '%d')
-table_m.grid(row=3, column=3, sticky=NW)
+table_m.grid(row=3, column=3)
 
-label_n = Label(window, text="n: ", font=LARGE_FONT, bg="gainsboro")
-label_n.grid(row=3, column=0, padx=10, sticky=E)
-table_n = Entry(window, width=5, bg="gold", selectbackground='black', validate="key")
+label_n = Label(window, text="n: ", font=LARGE_FONT, bg="#1A1A1D", fg="#bbbbbf")
+label_n.grid(row=2, column=2, padx=10)
+table_n = Entry(window, width=5, bg="#4E4E50", selectbackground='#bbbbbf', font=LARGE_FONT, fg="#bbbbbf", validate="key")
 table_n['validatecommand'] = (table_n.register(testVal), '%P', '%d')
-table_n.grid(row=3, column=1, sticky=NW)
+table_n.grid(row=2, column=3)
 
-label_m = Label(window, text="Введите частоту(Ггц): ", font=LARGE_FONT, bg="gainsboro")
-label_m.grid(row=5, column=0, columnspan=2, padx=30, pady=15, sticky=NE)
+label_sveta = Label(window, text="Люблю пиццу", font=LARGE_FONT, bg="#1A1A1D", fg="#1A1A1D")
+label_sveta.grid(row=4, column=0)
 
-frequincy = Entry(window, width=5, bg="gold", selectbackground='black', validate="key")
+label_m = Label(window, text="Введите частоту(ГГц): ", font=LARGE_FONT, bg="#1A1A1D", fg="#bbbbbf")
+label_m.grid(row=5, column=0, padx=30, sticky=W)
+
+frequincy = Entry(window, width=5, bg="#4E4E50", selectbackground='black', font=LARGE_FONT, fg="#bbbbbf", validate="key")
 frequincy['validatecommand'] = (frequincy.register(testVal), '%P', '%d')
-frequincy.grid(row=5, column=2, columnspan=2, pady=15, ipadx=5, sticky=NW)
+frequincy.grid(row=5, column=3)
 
-waveguide_size = Label(window, text="Введите размер волновода (см):", font=LARGE_FONT, bg="gainsboro")
-waveguide_size.grid(row=6, column=0, columnspan=4, padx=30, sticky=W)
+label_antosha = Label(window, text="Люблю абрикосы", font=LARGE_FONT, bg="#1A1A1D", fg="#1A1A1D")
+label_antosha.grid(row=6, column=0)
 
-a_x_size = Label(window, text="a: ", font=LARGE_FONT, bg="gainsboro")
-a_x_size.grid(row=7, column=0, padx=30, sticky=NE)
-a_x_size_entry = Entry(window, width=5, bg="gold", selectbackground='black', validate="key")
+waveguide_size = Label(window, text="Введите размер волновода (см):", font=LARGE_FONT, bg="#1A1A1D", fg="#bbbbbf")
+waveguide_size.grid(row=7, column=0, columnspan=4, padx=30, sticky=W)
+
+a_x_size = Label(window, text="a: ", font=LARGE_FONT, bg="#1A1A1D", fg="#bbbbbf")
+a_x_size.grid(row=7, column=2, padx=30, sticky=NE)
+a_x_size_entry = Entry(window, width=5, bg="#4E4E50", font=LARGE_FONT, selectbackground='#1A1A1D', fg="#bbbbbf", validate="key")
 a_x_size_entry['validatecommand'] = (a_x_size_entry.register(testVal), '%P', '%d')
-a_x_size_entry.grid(row=7, column=1, sticky=NW)
+a_x_size_entry.grid(row=7, column=3)
 
-b_x_size = Label(window, text="b: ", font=LARGE_FONT, bg="gainsboro")
-b_x_size.grid(row=7, column=2, padx=30, sticky=NE)
-b_x_size_entry = Entry(window, width=5, bg="gold", selectbackground='black', validate="key")
+b_x_size = Label(window, text="b: ", font=LARGE_FONT, bg="#1A1A1D", fg="#bbbbbf")
+b_x_size.grid(row=8, column=2, padx=30, sticky=NE)
+b_x_size_entry = Entry(window, width=5, bg="#4E4E50", font=LARGE_FONT, selectbackground='#1A1A1D', fg="#bbbbbf", validate="key")
 b_x_size_entry['validatecommand'] = (b_x_size_entry.register(testVal), '%P', '%d')
-b_x_size_entry.grid(row=7, column=3, sticky=NW)
+b_x_size_entry.grid(row=8, column=3)
 
-size_lines = Label(window, text="Количество линей уровня: ", font=LARGE_FONT, bg="gainsboro")
-size_lines.grid(row=8, column=0, columnspan=2, padx=30, pady=10, sticky=SW)
-size_lines_entry = Entry(window, width=5, bg="gold", selectbackground='black', validate="key")
+label_grisha = Label(window, text="Люблю гулять", font=LARGE_FONT, bg="#1A1A1D", fg="#1A1A1D")
+label_grisha.grid(row=9, column=0)
+
+size_lines = Label(window, text="Количество линей уровня: ", font=LARGE_FONT, bg="#1A1A1D", fg="#bbbbbf")
+size_lines.grid(row=10, column=0, columnspan=2, padx=30, pady=10, sticky=SW)
+size_lines_entry = Entry(window, width=5, bg="#4E4E50", font=LARGE_FONT, selectbackground='#1A1A1D', fg="#bbbbbf", validate="key")
 size_lines_entry['validatecommand'] = (size_lines_entry.register(testVal), '%P', '%d')
-size_lines_entry.grid(row=8, column=2, columnspan=2, pady=10, sticky=SW)
+size_lines_entry.grid(row=10, column=3)
 
-click = Button(window, text="Построить графики силовых линий", font=LARGE_FONT, command=plotting)
-click.grid(row=10, column=0, columnspan=3, pady=90, sticky=S)
+label_nastya = Label(window, text="Люблю делать ненужные вещи, да", font=LARGE_FONT, bg="#1A1A1D", fg="#1A1A1D")
+label_nastya.grid(row=11, column=0)
 
-label = Label(window, text=" ", font=LARGE_FONT, bg="gainsboro")
-label.grid(row=10, column=14, columnspan=17, padx=10, sticky=S + N)
+label = Label(window, text=" ", font=LARGE_FONT, bg="#1A1A1D")
+label.grid(row=11, column=14, columnspan=17, padx=10, sticky=S + N)
 time = 0
-label_time = Label(window, text="Время: ", font=LARGE_FONT, bg="gainsboro")
-label_time.grid(row=9, column=0, columnspan=1, padx=30, pady=15, sticky=SW)
-time_label = Label(window, text=time, font=LARGE_FONT, bg="gainsboro")
-time_label.grid(row=9, column=0, columnspan=1, padx=90, pady=15, sticky=SW)
-time_plus = Button(window, text="-->", bg="gold", command=time_plus)
-time_plus.grid(row=9, column=2, columnspan=1, pady=15, sticky=SW)
-time_minus = Button(window, text="<--", bg="gold", command=time_minus)
-time_minus.grid(row=9, column=1, columnspan=1, pady=15, sticky=SW)
+label_time = Label(window, text="Время: ", font=LARGE_FONT, bg="#1A1A1D", fg="#bbbbbf")
+label_time.grid(row=12, column=0, columnspan=1, padx=30, pady=15, sticky=SW)
+time_label = Label(window, text=time, font=LARGE_FONT, bg="#1A1A1D", fg="#1A1A1D")
+time_label.grid(row=122, column=122, columnspan=122, padx=1000, pady=1000, sticky=SW)
 
-label_color = Label(window, text="H-синий\n E-красный", font=LARGE_FONT, bg="gainsboro")
-label_color.grid(row=0, column=2, columnspan=1, pady=10, sticky=S)
+scale = Scale(window, orient="horizontal", from_=0, to=100, bg="#1A1A1D", fg="#bbbbbf", command=onScale)
+label_time_entry = scale
+scale.place(relx=.227, rely=.45, anchor="c", height=50, width=300)
+
+label_marina = Label(window, text="а нужные не люблю, ага", font=LARGE_FONT, bg="#1A1A1D", fg="#1A1A1D")
+label_marina.grid(row=13, column=0)
+
+click = Button(window, text="Построить графики силовых линий", bg="#1A1A1D", fg="#bbbbbf", font=LARGE_FONT, command=plotting)
+click.place(relx=.19, rely=.7, anchor="c", height=50, width=450)
+
+label_color = Label(window, text="H-синий, E-красный", anchor="n", font=LARGE_FONT,  bg="#4e4e52", fg="#bbbbbf",)
+label_color.place(relx=.7, rely=.5, anchor="c", height=862, width=700, bordermode=OUTSIDE)
 
 window.mainloop()
