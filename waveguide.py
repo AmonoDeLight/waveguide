@@ -50,7 +50,7 @@ def plotting():
             len(table_n.get()) == 0) or (len(table_m.get()) == 0):
         clf()
         label.configure(text="Заполните поля!", bg="#1A1A1D", fg="#bbbbbf")
-        label.grid(row=0, column=4, columnspan=3, padx=10, pady=15, sticky=S + N)
+        label.place(relx=.19, rely=.75, anchor="c", height=50, width=450)
         gcf().canvas.draw()
         return
     label.configure(text=" ")
@@ -257,19 +257,19 @@ def plotting():
     w_label = Label(window, text="Критическая частота(ГГц): ", font=LARGE_FONT, bg="#1A1A1D", fg="#bbbbbf")
     w_label.grid(row=14, column=0, sticky=W, padx=30)
     wk_label = Label(window, text=f_kr / 1e9, bg="#1A1A1D", fg="#bbbbbf", font=LARGE_FONT)
-    wk_label.place(relx=.28, rely=.546, anchor="c")
+    wk_label.place(relx=.28, rely=.588, anchor="c")
 
 
 window = Tk()
 window.title()
 window.protocol("WM_DELETE", EXIT)
-window.attributes('-fullscreen', True)
 window.attributes("-alpha", 1)
+window.state("zoomed")
 window.resizable(width=True, height=True)
 window['bg'] = '#1A1A1D'
 window.title("Volnovodka")
-w = 950
-h = 700
+w = 1850
+h = 1080
 sw = window.winfo_screenwidth()
 sh = window.winfo_screenheight()
 
@@ -353,7 +353,7 @@ time_label.grid(row=122, column=122, columnspan=122, padx=1000, pady=1000, stick
 
 scale = Scale(window, orient="horizontal", from_=0, to=100, bg="#1A1A1D", fg="#bbbbbf", command=onScale)
 label_time_entry = scale
-scale.place(relx=.227, rely=.45, anchor="c", height=50, width=300)
+scale.place(relx=.227, rely=.48, anchor="c", height=50, width=300)
 
 label_marina = Label(window, text="а нужные не люблю, ага", font=LARGE_FONT, bg="#1A1A1D", fg="#1A1A1D")
 label_marina.grid(row=13, column=0)
@@ -362,6 +362,6 @@ click = Button(window, text="Построить графики силовых л
 click.place(relx=.19, rely=.7, anchor="c", height=50, width=450)
 
 label_color = Label(window, text="H-синий, E-красный", anchor="n", font=LARGE_FONT,  bg="#4e4e52", fg="#bbbbbf",)
-label_color.place(relx=.7, rely=.5, anchor="c", height=862, width=700, bordermode=OUTSIDE)
+label_color.place(relx=.7, rely=.5, anchor="c", height=800, width=700, bordermode=OUTSIDE)
 
 window.mainloop()
