@@ -120,11 +120,10 @@ def plotting():
         return exp(kappaX * (cos(kappaX * C1) / sin(kappaX * C1)) * y) * sin(w * t - hh * z)
 
     def TE10_E_XY(x, y):
-        return (w / (kappaX * cc)) * abs(sin(kappaX * x) * cos(kappaX * x) * sin(kappaX * x))
+        return abs(sin(kappaX*x)*cos(kappaX*x)*sin(kappaX*x))
 
     def TE10_E_YZ(y, z):
-        return cos(
-            w * t - hh * y)  # * (w / (kappaX * cc)) #* sin(kappaX * y)  #0.1 - cos(w * t - hh * y + 0.2) * (w / (kappaX * cc))
+        return cos( w * t - hh * y)  # * (w / (kappaX * cc)) #* sin(kappaX * y)  #0.1 - cos(w * t - hh * y + 0.2) * (w / (kappaX * cc))
 
     # ==========================================================================================================
 
@@ -178,7 +177,7 @@ def plotting():
         y2, z2 = makeData(b, c)
         x3, z3 = makeData(a, c)
         canvas = FigureCanvasTkAgg(fig, master=window)
-        canvas.get_tk_widget().place(relx=.7, rely=.52, anchor="c")
+        canvas.get_tk_widget().place(relx=.7, rely=.53, anchor="c")
 
         if combobox.get() == "TE":  # ïðîâåðÿåì òèï âîëí è äàëüøå ñ÷èòûâàåì ìîäó
             if n != 0 and m != 0:
@@ -243,11 +242,9 @@ def plotting():
                 XZ.set_ylabel('x')
             else:
                 label = Label(window, text="E R R O R !", font=LARGE_FONT, bg="#1A1A1D", fg="#bbbbbf")
-                label.grid(row=3, column=4, columnspan=3, padx=30, sticky=SW)
+                label.grid(row=16, column=0, sticky=W, padx=30)
                 gcf().canvas.draw()
 
-                # åñëè ÷àñòîòà íèæå êðèòè÷åñêîé âîëíû íå ðàñïðîñòðîÿíÿþòñÿ
-    # è òàêæå âûâåäåì ñàìó êðèòè÷åñêóþ ÷àñòîòó
 
     else:
         label = Label(window, text="Частота ниже критической!", font=LARGE_FONT, bg="#1A1A1D", fg="#bbbbbf")
