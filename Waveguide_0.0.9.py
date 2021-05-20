@@ -126,10 +126,10 @@ def plotting():
         return (w/(kappaX*cc)) * abs(cos(kappaX*x)) * sin(w*t)#abs(sin(kappaX*x)*cos(kappaX*x)*sin(kappaX*x))
 
     def TE10_E_YZ_pos(y, z):
-        return abs( (cos(w * t - hh * y/2-6))) *-2  #abs( (cos(w * t - hh * y/2-6))) *2 #abs(pow(-1, tt) * (cos(w * t - hh * y/3)))*2
+        return -(w / (kappaX * cc))*abs((sin(w * t - hh * y/2-8.55)))# *-2  #abs( (cos(w * t - hh * y/2-6))) *2 #abs(pow(-1, tt) * (cos(w * t - hh * y/3)))*2
 
     def TE10_E_YZ_neg(y, z):
-       return abs((cos(w * t - hh * y/2-20))) *2  #abs((cos(w * t - hh * y/2-20))) *-2  #abs(pow(-1, tt) * (cos(w * t - hh * y/3-20)))*-2
+       return (w / (kappaX * cc))*abs((sin(w * t - hh * y/2-22.8)))# *2  #abs((cos(w * t - hh * y/2-20))) *-2  #abs(pow(-1, tt) * (cos(w * t - hh * y/3-20)))*-2
     
     
        
@@ -221,9 +221,9 @@ def plotting():
             if n != 0 and m != 0:
                 YZ.contour(z2, y2, TE_H_YZ(y2, z2), linspace(-1, 1, k), colors='b')
             elif n != 0 and m == 0:
-                YZ.contour(x1, y1, TE10_H_XY(y1, 0), linspace(-1, 1, k), colors='b') #TE10_H_XY_neg(y1, 0)
-                YZ.contour(x1, y1, TE10_E_YZ_pos(x1, y1), linspace(-1, 1, k), colors='r')
-                YZ.contour(x1, y1, TE10_E_YZ_neg(x1, y1), linspace(-1, 1, k), colors='r')
+                YZ.contour(z2, y2, TE10_H_XY(y2, 0), linspace(-1, 1, k), colors='b') #TE10_H_XY_neg(y1, 0)
+                YZ.contour(z2, y2, TE10_E_YZ_pos(z2, y2), linspace(-1, 1, k), colors='r')
+                YZ.contour(z2, y2, TE10_E_YZ_neg(z2, y2), linspace(-1, 1, k), colors='r')
                 
             elif n == 0 and m != 0:
                 YZ.contour(z2, y2, TE01_H_YZ(y2, z2), linspace(-1, 1, k), colors='b')
@@ -252,8 +252,8 @@ def plotting():
                 XY.set_ylabel('y')
 
                 YZ.contour(z2, y2, TM_E_YZ(y2, z2), linspace(-1, 1, k), colors='r')
-                YZ.contour(x1, y1, TE10_E_YZ_pos(x1, y1), linspace(-1, 1, k), colors='b')
-                YZ.contour(x1, y1, TE10_E_YZ_neg(x1, y1), linspace(-1, 1, k), colors='b')
+                YZ.contour(z2, y2, TE10_E_YZ_pos(z2, y2), linspace(-pi, pi, k), colors='b')
+                YZ.contour(z2, y2, TE10_E_YZ_neg(z2, y2), linspace(-pi, pi, k), colors='b')
                 YZ.set_xlabel('z')
                 YZ.set_ylabel('y')
 
